@@ -1,0 +1,53 @@
+import destinos.*
+import mensajeros.*
+import vehiculos.*
+
+import paquete.*
+
+// Casos e prueba del ejercicio 
+
+describe "Tests mensajerosDePelicula" {
+
+    test "El paquete de George que no está pago no puede ser llevado por Neo a la matrix" {
+
+        paquete.mensajero(neo) // Se asigna a Neo como mensajero
+        assert.equals(false, paquete.puedeSerEntregado()) // Se consulta si la entrega es posible sin haber pago antes el envio
+
+    }
+
+    test "El paquete de George que sí está pago puede ser llevado por Jean a la matrix" {
+
+        paquete.pagar() // Se paga el paquete
+        paquete.mensajero(jean) // Se asigna a Jean como mensajero del paquete
+        assert.equals(true, paquete.puedeSerEntregado())
+
+    }
+
+    test "El paquete de George que sí está pago no puede ser llevado por Sara (que pesa 70kg) a Brooklyn si es que utiliza un camión con un acoplado " {
+
+        sara.peso(70)
+        sara.cambiarVehiculo(camion)
+        sara.vehiculo().agregarAcoplado()
+
+        paquete.pagar()
+        paquete.mensajero(sara)
+        paquete.cambiarDestino(brooklyn)
+
+        assert.equals(false, paquete.puedeSerEntregado())
+
+    }
+
+    test "La entrega anterior puede hacerse si Sara usa una moto" {
+
+        sara.peso(70)
+        sara.cambiarVehiculo(moto)
+
+        paquete.pagar()
+        paquete.mensajero(sara)
+        paquete.cambiarDestino(brooklyn)
+
+        assert.equals(true, paquete.puedeSerEntregado())
+
+    }
+
+}

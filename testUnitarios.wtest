@@ -1,0 +1,358 @@
+import paquete.*
+import mensajeros.*
+import destinos.*
+import vehiculos.*
+
+    // Test's unitarios del paquete
+
+describe "Paquete" {
+
+	test "El precio de envio por defecto (a matrix) es 500" {
+
+		assert.equals(500, paquete.precioEnvio())
+
+	}
+
+	test "Cambiar el destino a brooklyn cambia el precio de envio a 150" {
+
+		paquete.cambiarDestino(brooklyn)
+		assert.equals(150, paquete.precioEnvio())
+
+	}
+
+	test "El paquete no esta pago al inicio" {
+
+		assert.equals(false, paquete.estaPagado())
+
+	}
+
+	test "Luego de pagar, el paquete queda pago" {
+
+		paquete.pagar()
+		assert.equals(true, paquete.estaPagado())
+
+	}
+
+	test "destino() devuelve el destino actual del paquete" {
+
+		assert.equals(matrix, paquete.destino())
+		paquete.cambiarDestino(brooklyn)
+		assert.equals(brooklyn, paquete.destino())
+
+	}
+
+	test "mensajero() devuelve el mensajero actual del paquete" {
+
+		assert.equals(neo, paquete.mensajero())
+
+	}
+
+	test "Se puede cambiar el mensajero asignado al paquete" {
+
+		paquete.mensajero(jean)
+		assert.equals(jean, paquete.mensajero())
+
+	}
+
+	test "El paquete no puede ser entregado si no esta pago, aunque el destino lo permita" {
+
+		assert.equals(false, paquete.estaPagado())
+		assert.equals(true, matrix.puedeEntrar(neo))
+		assert.equals(false, paquete.puedeSerEntregado())
+
+	}
+
+	test "El paquete puede ser entregado si esta pago y el mensajero puede entrar al destino" {
+
+		paquete.pagar()
+		assert.equals(true, paquete.puedeSerEntregado())
+
+	}
+
+	test "El paquete no puede ser entregado si esta pago pero el mensajero no puede entrar al destino" {
+
+		paquete.pagar()
+		paquete.mensajero(sara)
+		assert.equals(false, paquete.puedeSerEntregado())
+
+	}
+
+	test "El paquete no puede ser entregado si cambia a un destino donde el mensajero no puede entrar" {
+
+		paquete.pagar()
+		paquete.cambiarDestino(matrix)
+		paquete.mensajero(sara)
+		assert.equals(false, paquete.puedeSerEntregado())
+
+	}
+
+	test "puedeSerEntregadoPor no depende de si el paquete esta pago" {
+        
+		assert.equals(false, paquete.estaPagado())
+		assert.equals(true, paquete.puedeSerEntregadoPor(jean))
+
+	}
+
+	test "puedeSerEntregadoPor devuelve false si el mensajero no cumple las restricciones del destino" {
+
+		assert.equals(false, paquete.puedeSerEntregadoPor(sara))
+
+	}
+
+	test "puedeSerEntregadoPor cambia segun el destino del paquete" {
+
+		assert.equals(false, paquete.puedeSerEntregadoPor(sara))
+		paquete.cambiarDestino(brooklyn)
+		assert.equals(true, paquete.puedeSerEntregadoPor(sara))
+
+	}
+
+}
+
+    // Test's unitarios de los destinos
+
+describe "Matrix" {
+
+    test "El costo de envio a matrix es 500" {
+
+        assert.equals(500, matrix.costoEnvio())
+
+    }
+
+    test "Matrix deja entrar a un mensajero que puede llamar" {
+
+        assert.equals(true, matrix.puedeEntrar(jean))
+
+    }
+
+    test "Matrix no deja entrar a un mensajero que no puede llamar" {
+
+        assert.equals(false, matrix.puedeEntrar(sara))
+
+    }
+
+    test "Matrix depende de si neo puede llamar en ese momento" {
+
+        assert.equals(true, matrix.puedeEntrar(neo))
+
+        neo.hacerLlamada()
+        neo.hacerLlamada()
+        neo.hacerLlamada()
+
+        assert.equals(false, matrix.puedeEntrar(neo))
+
+    }
+
+}
+
+describe "Brooklyn" {
+
+    test "El costo de envio a brooklyn es 150" {
+
+        assert.equals(150, brooklyn.costoEnvio())
+
+    }
+
+    test "Brooklyn deja entrar a un mensajero que pesa hasta 1000 kilos" {
+
+        assert.equals(true, brooklyn.puedeEntrar(jean))
+        assert.equals(true, brooklyn.puedeEntrar(neo))
+        assert.equals(true, brooklyn.puedeEntrar(sara))
+
+    }
+
+    test "Brooklyn no deja entrar a un mensajero que pesa mas de 1000 kilos" {
+
+        sara.cambiarVehiculo(camion)
+
+        camion.agregarAcoplado()
+        camion.agregarAcoplado()
+
+        assert.equals(false, brooklyn.puedeEntrar(sara))
+
+    }
+
+    test "Brooklyn deja entrar a alguien que pesa justo 1000 kilos" {
+
+        sara.peso(500)
+        sara.cambiarVehiculo(camion)
+        assert.equals(true, brooklyn.puedeEntrar(sara))
+
+    }
+
+}
+
+    // Test's unitarios de los mensajeros
+
+describe "Jean" {
+
+    test "Jean siempre puede llamar" {
+
+        assert.equals(true, jean.puedeLlamar())
+
+    }
+
+    test "El peso de jean es 65" {
+
+        assert.equals(65, jean.peso())
+        
+    }
+
+}
+
+describe "Neo" {
+
+    test "Neo no pesa nada" {
+
+        assert.equals(0, neo.peso())
+
+    }
+
+    test "Con saldo inicial (300) neo puede llamar" {
+
+        assert.equals(true, neo.puedeLlamar())
+
+    }
+
+    test "Si el saldo es menor a 100 neo no puede llamar" {
+
+        neo.hacerLlamada()
+        neo.hacerLlamada()
+        neo.hacerLlamada()
+
+        assert.equals(false, neo.puedeLlamar())
+
+    }
+
+    test "Si el saldo es exactamente 100 neo puede llamar" {
+
+        neo.hacerLlamada()
+        neo.hacerLlamada()
+
+        assert.equals(true, neo.puedeLlamar())
+
+    }
+
+    test "Cargar saldo le suma el monto al saldo existente" {
+
+        neo.hacerLlamada()
+        neo.hacerLlamada()
+        neo.hacerLlamada()
+
+        assert.equals(false, neo.puedeLlamar())
+
+        neo.cargarSaldo(200)
+
+        assert.equals(true, neo.puedeLlamar())
+    }
+
+    test "Hacer una llamada resta 100 al saldo" {
+
+        neo.hacerLlamada()
+        assert.equals(200, neo.consultarSaldo())
+
+        neo.hacerLlamada()
+        assert.equals(100, neo.consultarSaldo())
+
+    }
+
+}
+
+describe "Sara" {
+
+    test "Sara nunca puede llamar" {
+
+        assert.equals(false, sara.puedeLlamar())
+
+    }
+
+    test "El peso de sara por defecto es su peso mas el de la moto" {
+
+        assert.equals(180, sara.peso())
+
+    }
+
+    test "Cambiar el peso propio de sara modifica su peso total" {
+
+        sara.peso(90)
+        assert.equals(190, sara.peso())
+
+    }
+
+    test "Cambiar el vehiculo de sara a camion modifica su peso total" {
+
+        sara.cambiarVehiculo(camion)
+        assert.equals(580, sara.peso())
+
+    }
+
+    test "Cambiar el vehiculo de sara a camion con acoplados modifica su peso total" {
+
+        camion.agregarAcoplado()
+        sara.cambiarVehiculo(camion)
+        assert.equals(1080, sara.peso())
+
+    }
+
+    test "Vehiculo() devuelve el vehiculo actual de sara" {
+
+        assert.equals(moto, sara.vehiculo())
+        sara.cambiarVehiculo(camion)
+        assert.equals(camion, sara.vehiculo())
+
+    }
+
+}
+
+    // Test's unitarios de los vehiculos
+
+describe "Moto" {
+
+		test "El peso de la moto es 100" {
+
+			assert.equals(100, moto.peso())
+
+		}
+
+}
+
+describe "Camion" {
+
+		test "El peso del camion sin acoplados es 500" {
+
+			assert.equals(500, camion.peso())
+
+		}
+
+		test "Agregar un acoplado aumenta el peso en 500" {
+
+			camion.agregarAcoplado()
+			assert.equals(1000, camion.peso())
+
+		}
+
+		test "Agregar dos acoplados aumenta el peso en 1000" {
+
+			camion.agregarAcoplado()
+			camion.agregarAcoplado()
+			assert.equals(1500, camion.peso())
+
+		}
+
+		test "Quitar un acoplado disminuye el peso en 500" {
+
+			camion.agregarAcoplado()
+			camion.agregarAcoplado()
+			camion.quitarAcoplado()
+			assert.equals(1000, camion.peso())
+
+		}
+
+		test "Quitar un acoplado cuando no hay ninguno no deja el peso negativo" {
+
+			camion.quitarAcoplado()
+			assert.equals(500, camion.peso())
+
+		}
+
+}
