@@ -26,9 +26,9 @@ object brooklyn {
 
     const costoEnvio = 150 // Costo del envio a este destino
 
-    method costoEnvio(){
+    // Getter que permite saber el costo del envio a este destino
 
-        // Getter que permite saber el costo del envio a este destino
+    method costoEnvio(){
 
         return costoEnvio
 

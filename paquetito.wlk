@@ -1,36 +1,25 @@
+import destinos.*
 import mensajeros.*
 
-import destinos.*
+object paquetito {
 
-// Paquete que se desea enviar
-
-object paquete {
-
-    const costoEnvio = 50 // Costo del envio del paquete
-    var pago = false // Estado del pago del paquete
+    const costoEnvio = 0 // Costo de envio del paquetito
+    const pago = true // Estado del pago del paquete
     var destino = matrix // Destino al que se envia el paquete
     var mensajero = neo // Mensajero que va a entregar el paquete
-
+    
     // Getter que permite saber el costo del paquete
 
-    method precioEnvio(){
+    method precioEnvio() {
 
         return costoEnvio
-
-    }
-
-    // Setter que permite pagar que paquete
-
-    method pagar(){
-
-        pago = true
 
     }
 
     // Getter que permite consultar si el paquete esta pago
 
     method estaPagado() {
-      
+
         return pago
 
     }
@@ -71,7 +60,7 @@ object paquete {
 
     method puedeSerEntregado() {
 
-        return self.estaPagado() and destino.puedeEntrar(mensajero)
+        return self.estaPagado()
 
     }
 
@@ -79,7 +68,7 @@ object paquete {
 
     method puedeSerEntregadoPor(unMensajero) {
 
-        return self.estaPagado() and destino.puedeEntrar(unMensajero)
+        return self.estaPagado()
 
     }
 

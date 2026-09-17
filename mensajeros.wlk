@@ -119,3 +119,51 @@ object sara {
     }
 
 }
+
+object trinity {
+
+    var peso = 60 // Peso corporal del mensajero
+    var vehiculo = moto // Vehiculo que esta usando Trinity
+    const puedeLlamar = true // Trinity siempre puede comunicarse
+
+    // Getter que indica si el mensajero puede llamar
+
+    method puedeLlamar() {
+
+        return puedeLlamar
+
+    }
+
+    // Getter que indica el peso corporal de Trinity mas su vehiculo
+
+    method peso() {
+
+        return peso + vehiculo.peso()
+
+    }
+
+    // Setter que permite cambiar el peso propio de Trinity
+
+    method peso(nuevoPeso) {
+
+        peso = nuevoPeso
+
+    }
+
+    // Setter que permite cambiar el vehiculo de Trinity
+
+    method cambiarVehiculo(vehiculoNuevo) {
+
+        vehiculo = vehiculoNuevo
+
+    }
+
+    // Getter que permite saber que vehiculo esta utilizando Trinity
+
+    method vehiculo() {
+
+        return vehiculo
+
+    }
+
+}

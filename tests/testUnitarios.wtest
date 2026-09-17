@@ -7,16 +7,16 @@ import vehiculos.*
 
 describe "Paquete" {
 
-	test "El precio de envio por defecto (a matrix) es 500" {
+	test "El precio de envio del paquete original es 50" {
 
-		assert.equals(500, paquete.precioEnvio())
+		assert.equals(50, paquete.precioEnvio())
 
 	}
 
-	test "Cambiar el destino a brooklyn cambia el precio de envio a 150" {
+	test "El precio de envio del paquete sigue siendo 50 aunque cambie el destino" {
 
 		paquete.cambiarDestino(brooklyn)
-		assert.equals(150, paquete.precioEnvio())
+		assert.equals(50, paquete.precioEnvio())
 
 	}
 
@@ -86,21 +86,25 @@ describe "Paquete" {
 
 	}
 
-	test "puedeSerEntregadoPor no depende de si el paquete esta pago" {
+	test "puedeSerEntregadoPor requiere que el paquete este pago" {
         
 		assert.equals(false, paquete.estaPagado())
+		assert.equals(false, paquete.puedeSerEntregadoPor(jean))
+		paquete.pagar()
 		assert.equals(true, paquete.puedeSerEntregadoPor(jean))
 
 	}
 
 	test "puedeSerEntregadoPor devuelve false si el mensajero no cumple las restricciones del destino" {
 
+		paquete.pagar()
 		assert.equals(false, paquete.puedeSerEntregadoPor(sara))
 
 	}
 
-	test "puedeSerEntregadoPor cambia segun el destino del paquete" {
+	test "puedeSerEntregadoPor cambia segun el destino del paquete cuando esta pago" {
 
+		paquete.pagar()
 		assert.equals(false, paquete.puedeSerEntregadoPor(sara))
 		paquete.cambiarDestino(brooklyn)
 		assert.equals(true, paquete.puedeSerEntregadoPor(sara))

@@ -1,0 +1,165 @@
+import mensajeros.*
+import destinos.*
+import vehiculos.*
+import empresa.*
+import paquete.*
+import paquetito.*
+import paqueton.*
+import paqueteEspecial.*
+
+describe "Segunda Parte: Empresa de mensajería" {
+
+    test "Contratar a un mensajero lo agrega a la empresa" {
+        mensajeria.contratar(trinity)
+        assert.that(mensajeria.mensajeros().contains(trinity))
+    }
+
+    test "Despedir a un mensajero lo quita de la empresa" {
+        mensajeria.despedir(neo)
+        assert.notThat(mensajeria.mensajeros().contains(neo))
+    }
+
+    test "Despedir a todos los mensajeros deja vacia la empresa" {
+        mensajeria.despedirATodos()
+        assert.equals([], mensajeria.mensajeros())
+    }
+
+    test "La mensajeria es grande si tiene mas de dos mensajeros" {
+        assert.that(mensajeria.esGrande())
+        mensajeria.despedir(neo)
+        assert.notThat(mensajeria.esGrande())
+    }
+
+    test "Consultar si el paquete puede ser entregado por el primer empleado de la mensajeria" {
+        paquete.pagar()
+        paquete.cambiarDestino(matrix)
+        // El primer empleado es jean, que puede llamar y entrar a la matrix
+        assert.that(mensajeria.primerEmpleadoPuedeEntregar(paquete))
+    }
+
+    test "Saber el peso del ultimo mensajero de la empresa" {
+        // La lista inicial es [jean, neo, sara], sara pesa 80 + 100 de moto = 180
+        assert.equals(180, mensajeria.pesoUltimoMensajero())
+    }
+
+}
+
+describe "Tercera Parte: Mensajería recargada" {
+
+    test "1. Averiguar si un paquete puede ser entregado por la empresa (al menos un mensajero puede)" {
+        paquete.pagar()
+        paquete.cambiarDestino(matrix)
+        assert.that(mensajeria.puedeEntregar(paquete))
+
+        // Si no esta pago, la empresa no lo puede entregar
+        paqueteEspecial.cambiarDestino(matrix)
+        assert.notThat(mensajeria.puedeEntregar(paqueteEspecial))
+    }
+
+    test "2. Obtener todos los mensajeros que pueden llevar un paquete dado" {
+        paquete.pagar()
+        paquete.cambiarDestino(brooklyn)
+        // A brooklyn con peso <= 1000 entran jean (65), neo (0) y sara con moto (180)
+        assert.equals([jean, neo, sara], mensajeria.mensajerosQuePuedenEntregar(paquete))
+
+        // Si cambiamos el vehiculo de Sara a camion con 2 acoplados (1500 + 80 = 1580), Sara ya no entra
+        camion.agregarAcoplado()
+        camion.agregarAcoplado()
+        sara.cambiarVehiculo(camion)
+        assert.equals([jean, neo], mensajeria.mensajerosQuePuedenEntregar(paquete))
+    }
+
+    test "3. Saber si una mensajería tiene sobrepeso (promedio de pesos > 500)" {
+        // Inicial: jean (65) + neo (0) + sara (180) = 245 / 3 = 81.66
+        assert.notThat(mensajeria.tieneSobrepeso())
+
+        // Si Sara pesa 500 y usa camion con 2 acoplados (1500) -> sara pesa 2000
+        // (65 + 0 + 2000) / 3 = 688.33 > 500
+        sara.peso(500)
+        sara.cambiarVehiculo(camion)
+        camion.agregarAcoplado()
+        camion.agregarAcoplado()
+        assert.that(mensajeria.tieneSobrepeso())
+    }
+
+    test "4. Enviar un paquete elige un mensajero capacitado y si no puede lo manda a pendientes" {
+        paquete.pagar()
+        paquete.cambiarDestino(matrix)
+
+        // Puede entregarse: se le asigna un mensajero entre los posibles y se suma facturacion
+        mensajeria.enviarPaquete(paquete)
+        assert.that([jean, neo].contains(paquete.mensajero()))
+        assert.equals(0, mensajeria.paquetesPendientes().size())
+
+        // Paquete que no puede entregarse (no esta pago)
+        paqueteEspecial.cambiarDestino(matrix)
+        mensajeria.enviarPaquete(paqueteEspecial)
+        assert.that(mensajeria.paquetesPendientes().contains(paqueteEspecial))
+    }
+
+    test "5. Conocer la facturacion de la empresa (total ganado por paquetes enviados)" {
+        assert.equals(0, mensajeria.facturacion())
+
+        // Paquetito siempre esta pago y vale 0
+        mensajeria.enviarPaquete(paquetito)
+        assert.equals(0, mensajeria.facturacion())
+
+        // Paquete original pago vale 50
+        paquete.pagar()
+        mensajeria.enviarPaquete(paquete)
+        assert.equals(50, mensajeria.facturacion())
+
+        // Paqueton con 2 destinos vale 200 (100 c/u)
+        paquetonViajero.agregarDestino(matrix)
+        paquetonViajero.agregarDestino(brooklyn)
+        paquetonViajero.pagar(200)
+        mensajeria.enviarPaquete(paquetonViajero)
+        assert.equals(250, mensajeria.facturacion())
+    }
+
+    test "6. Dado un conjunto de paquetes, enviarlos a todos" {
+        paquete.pagar()
+        paquetonViajero.agregarDestino(brooklyn)
+        paquetonViajero.pagar(100)
+
+        mensajeria.enviarPaquetes([paquete, paquetito, paquetonViajero])
+        assert.equals(150, mensajeria.facturacion())
+        assert.equals(0, mensajeria.paquetesPendientes().size())
+    }
+
+    test "7. Encontrar el paquete pendiente mas caro y enviarlo actualizando los pendientes" {
+        // Agregamos paquete y paqueteEspecial no pagos a pendientes
+        mensajeria.enviarPaquete(paquete) // valor 50
+        mensajeria.enviarPaquete(paqueteEspecial) // valor 200
+
+        assert.equals(2, mensajeria.paquetesPendientes().size())
+        assert.equals(paqueteEspecial, mensajeria.paquetePendienteMasCaro())
+
+        // Si se paga el paqueteEspecial y se intenta enviar el pendiente mas caro:
+        paqueteEspecial.pagar()
+        mensajeria.enviarPaquetePendienteMasCaro()
+
+        // Se envio paqueteEspecial: facturacion suma 200 y ya no esta en pendientes
+        assert.equals(200, mensajeria.facturacion())
+        assert.equals([paquete], mensajeria.paquetesPendientes())
+    }
+
+    test "9. Nuevo mensajero (Trinity) y nuevo paquete (paqueteEspecial) polimorficos" {
+        // Trinity puede ser contratada
+        mensajeria.contratar(trinity)
+        assert.that(mensajeria.mensajeros().contains(trinity))
+
+        // Trinity puede entrar a la Matrix porque puede llamar
+        assert.that(matrix.puedeEntrar(trinity))
+
+        // PaqueteEspecial es pago y entregado por Trinity
+        paqueteEspecial.pagar()
+        paqueteEspecial.cambiarDestino(matrix)
+        assert.that(paqueteEspecial.puedeSerEntregadoPor(trinity))
+
+        mensajeria.enviarPaquete(paqueteEspecial)
+        assert.equals(200, mensajeria.facturacion())
+        assert.equals(0, mensajeria.paquetesPendientes().size())
+    }
+
+}
