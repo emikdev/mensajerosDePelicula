@@ -4,7 +4,7 @@ import vehiculos.*
 
 import paquete.*
 
-// Casos e prueba del ejercicio 
+// Casos de prueba del ejercicio 
 
 describe "Tests mensajerosDePelicula" {
 

@@ -5,7 +5,7 @@ import destinos.*
 
 object paqueteEspecial {
 
-    const costoEnvio = 200 // Costo fijo del envio especial
+    const costoEnvio = 200 // Costo fijo del envio especial (es mas caro por el seguro contra perdidas)
     var pago = false // Estado del pago
     var destino = brooklyn // Destino configurable
     var mensajero = neo // Mensajero asignado

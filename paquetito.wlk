@@ -64,12 +64,6 @@ object paquetito {
 
     }
 
-    // Getter que pemrite consultar si el mensajero puede entrar al destino para entregar el paquete
-
-    method puedeSerEntregadoPor(unMensajero) {
-
-        return self.estaPagado()
-
-    }
+    // Como cualquiera lo puede entregar solo se necesita el getter anterior.
 
 }

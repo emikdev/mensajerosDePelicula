@@ -1,5 +1,4 @@
 import mensajeros.*
-
 import destinos.*
 
 // Paquete que se desea enviar
@@ -11,7 +10,7 @@ object paquete {
     var destino = matrix // Destino al que se envia el paquete
     var mensajero = neo // Mensajero que va a entregar el paquete
 
-    // Getter que permite saber el costo del paquete
+    // Getter que permite saber el costo del envio del paquete
 
     method precioEnvio(){
 

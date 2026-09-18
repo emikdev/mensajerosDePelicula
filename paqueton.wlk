@@ -7,7 +7,7 @@ object paquetonViajero {
 
     const destinos = [] // Lista de destinos del paqueton
     var montoPago = 0 // Dinero que ya fue pagado
-    var mensajero = neo
+    var mensajero = neo // Mensajero actual que tiene asignado el paquete
 
     // Setter que permite agregar un destino
 
@@ -37,7 +37,7 @@ object paquetonViajero {
 
     method pagar(monto){
 
-        montoPago = (montoPago + monto).min(self.precioEnvio())
+        montoPago = (montoPago + monto).min(self.precioEnvio()) // Evita que se rompa la comparacion que se hace en "espaPago()" aunque no se si es la mejor solucion
 
     }
 
